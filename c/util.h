@@ -1,7 +1,6 @@
 #ifndef AOC_UTILS_H
 #define AOC_UTILS_H
 
-#include <stdlib.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -61,11 +60,11 @@ static inline arena arena_create(size cap) {
 
 #define new(a, t, n) (t *)alloc(a, sizeof(t), _Alignof(t), n)
 
-static inline u8* tocstr(s8 str, arena *a){
-    u8* cstr = new(a, u8, str.len + 1);
-    memcpy(cstr, str.data, str.len);
-    cstr[str.len] = '\0';
-    return cstr;
+static inline u8 *tocstr(s8 str, arena *a) {
+  u8 *cstr = new (a, u8, str.len + 1);
+  memcpy(cstr, str.data, str.len);
+  cstr[str.len] = '\0';
+  return cstr;
 }
 
 // File stuff
@@ -92,18 +91,18 @@ static inline s8 slurp(const char *fname, arena *perm) {
 
   flen = fsize(f);
   if (flen < 0) {
-      puts("File size less than 0");
-      goto CLEANUP;
+    puts("File size less than 0");
+    goto CLEANUP;
   }
 
   fbuf = new (perm, u8, flen);
   size rsize;
   if ((rsize = fread(fbuf, 1, flen, f)) != flen) {
-      printf("fread was %td\n", rsize);
-      fstr = (s8){.data = NULL, .len = -1};
-      goto CLEANUP;
+    printf("fread was %td\n", rsize);
+    fstr = (s8){.data = NULL, .len = -1};
+    goto CLEANUP;
   }
-  fstr = (s8){.data=fbuf, .len=flen};
+  fstr = (s8){.data = fbuf, .len = flen};
 CLEANUP:
   fclose(f);
 RET:
@@ -111,30 +110,30 @@ RET:
 }
 
 typedef struct i64list {
-  i64* list;
+  i64 *list;
   size len;
 } i64list;
 
 typedef struct s8list {
-  s8* list;
+  s8 *list;
   size len;
 } s8list;
 
-static inline s8list get_lines(s8 text, arena* perm) {
-  u8* start = text.data;
+static inline s8list get_lines(s8 text, arena *perm) {
+  u8 *start = text.data;
   size num_lines = 0;
-  s8list lines = (s8list){.list=NULL, .len=num_lines};
+  s8list lines = (s8list){.list = NULL, .len = num_lines};
   for (int i = 0; i < text.len; i++) {
-      if (text.data[i] == '\n' || i == (text.len - 1)) {
-        s8* str = new(perm, s8, 1);
-        str->data = start;
-        str->len = &text.data[i - 1] - start;
-        start = &text.data[i] + 1;
-        if (num_lines == 0) {
-          lines.list = str;
-        }
-        num_lines++;
+    if (text.data[i] == '\n' || i == (text.len - 1)) {
+      s8 *str = new (perm, s8, 1);
+      str->data = start;
+      str->len = &text.data[i - 1] - start;
+      start = &text.data[i] + 1;
+      if (num_lines == 0) {
+        lines.list = str;
       }
+      num_lines++;
+    }
   }
   lines.len = num_lines;
   printf("Lines length = %td\n", lines.len);
@@ -142,16 +141,17 @@ static inline s8list get_lines(s8 text, arena* perm) {
 }
 
 static inline s8 slice(s8 str, usize start, usize end) {
-  return (s8){.data= &str.data[start], .len= str.len < end ? str.len: (size)end};
+  return (s8){.data = &str.data[start],
+              .len = str.len < end ? str.len : (size)end};
 }
 
-static inline i64 to_long(s8 str, arena scratch){
-  char* endptr;
+static inline i64 to_long(s8 str, arena scratch) {
+  char *endptr;
   i64 num = strtoll((char *)tocstr(str, &scratch), &endptr, 10);
   if (*endptr != '\0') {
-      printf("Conversion error or invalid characters in string. %d \n", *endptr);
+    printf("Conversion error or invalid characters in string. %d \n", *endptr);
   } else {
-      printf("Converted number: %llu\n", num);
+    printf("Converted number: %llu\n", num);
   }
   return num;
 }
