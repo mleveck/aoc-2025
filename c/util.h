@@ -124,7 +124,7 @@ static inline s8list split(s8 text, u8 delim, arena *perm) {
   size num_lines = 0;
   s8list lines = (s8list){.list = NULL, .len = num_lines};
   for (int i = 0; i <= text.len; i++) {
-    if (text.data[i] == delim || i == (text.len)) {
+    if (i == text.len || text.data[i] == delim) {
       s8 *str = new (perm, s8, 1);
       str->data = start;
       str->len = &text.data[i] - start;
@@ -141,12 +141,18 @@ static inline s8list split(s8 text, u8 delim, arena *perm) {
 }
 
 static inline s8list get_lines(s8 text, arena *perm) {
-  return split(text, '\n', perm);
+  s8list lines = split(text, '\n', perm);
+  // if ends in newline don't have an empty last element
+  // matches python splitlines()
+  if (lines.list[lines.len -1].len == 0) {
+    lines.len -= 1;
+  }
+  return lines;
 }
 
 static inline s8 slice(s8 str, usize start, usize end) {
   return (s8){.data = &str.data[start],
-              .len = str.len < end ? str.len : (size)end};
+              .len = (size)(str.len <= end ? str.len - start : (size)end - start)};
 }
 
 static inline i64 to_long(s8 str, arena scratch) {

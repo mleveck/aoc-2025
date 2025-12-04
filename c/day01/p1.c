@@ -18,6 +18,7 @@ int main(int argc, char **argv) {
   i64list magnitudes =
       (i64list){.len = lines.len, .list = new (&perm, i64, lines.len)};
   for (usize i = 0; i < lines.len; i++) {
+    printf("Line len: %td, end char %c \n",  lines.list[i].len, lines.list[i].data[lines.list[i].len -1]);
     s8 line = lines.list[i];
     char dir = line.data[0];
     i64 magnitude = to_long(slice(line, 1, line.len), scratch);
