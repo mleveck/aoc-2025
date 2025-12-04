@@ -119,15 +119,15 @@ typedef struct s8list {
   size len;
 } s8list;
 
-static inline s8list get_lines(s8 text, arena *perm) {
+static inline s8list split(s8 text, u8 delim, arena *perm) {
   u8 *start = text.data;
   size num_lines = 0;
   s8list lines = (s8list){.list = NULL, .len = num_lines};
-  for (int i = 0; i < text.len; i++) {
-    if (text.data[i] == '\n' || i == (text.len - 1)) {
+  for (int i = 0; i <= text.len; i++) {
+    if (text.data[i] == delim || i == (text.len)) {
       s8 *str = new (perm, s8, 1);
       str->data = start;
-      str->len = &text.data[i - 1] - start;
+      str->len = &text.data[i] - start;
       start = &text.data[i] + 1;
       if (num_lines == 0) {
         lines.list = str;
@@ -138,6 +138,10 @@ static inline s8list get_lines(s8 text, arena *perm) {
   lines.len = num_lines;
   printf("Lines length = %td\n", lines.len);
   return lines;
+}
+
+static inline s8list get_lines(s8 text, arena *perm) {
+  return split(text, '\n', perm);
 }
 
 static inline s8 slice(s8 str, usize start, usize end) {
