@@ -1,4 +1,5 @@
 #!/bin/bash
+# run like: ./run.sh p1 input.txt
 part=$1
 shift
 cd "$(dirname "$0")"
