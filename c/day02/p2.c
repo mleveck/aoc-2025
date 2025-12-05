@@ -6,13 +6,16 @@ static char *INPUT_FNAME = "./sample_input.txt";
 
 b32 check_repeats(s8 cand, s8 rest){
   if (rest.len < cand.len) return 0;
-  for (usize i =0; i < cand.len; i++) {
-    if (cand.data[i] != rest.data[i]) {
-      return 0;
+  if (rest.len % cand.len != 0) return 0;
+  size potential_repeats = rest.len/cand.len;
+  for (usize k = 0; k < potential_repeats; k++) {
+    for (usize i =0; i < cand.len; i++) {
+      if (cand.data[i] != rest.data[k*cand.len + i]) {
+        return 0;
+      }
     }
   }
-  if (cand.len == rest.len) return 1;
-  return check_repeats(cand, slice(rest, cand.len, rest.len));
+  return 1;
 }
 
 b32 find_repeats(s8 digits) {
