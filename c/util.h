@@ -67,6 +67,13 @@ static inline u8 *tocstr(s8 str, arena *a) {
   return cstr;
 }
 
+static inline s8 tos8(char* cstr, arena *a) {
+  size len = strlen(cstr);
+  u8* strdata = new(a, u8, len);
+  memcpy(strdata, cstr, len);
+  return (s8){.data = strdata, .len = len};
+}
+
 // File stuff
 static inline size fsize(FILE *f) {
   if (0 != fseek(f, 0, SEEK_END)) {
@@ -98,7 +105,7 @@ static inline s8 slurp(const char *fname, arena *perm) {
   fbuf = new (perm, u8, flen);
   size rsize;
   if ((rsize = fread(fbuf, 1, flen, f)) != flen) {
-    printf("fread was %td\n", rsize);
+    //printf("fread was %td\n", rsize);
     fstr = (s8){.data = NULL, .len = -1};
     goto CLEANUP;
   }
@@ -136,7 +143,7 @@ static inline s8list split(s8 text, u8 delim, arena *perm) {
     }
   }
   lines.len = num_lines;
-  printf("Lines length = %td\n", lines.len);
+  //printf("Lines length = %td\n", lines.len);
   return lines;
 }
 
@@ -161,7 +168,7 @@ static inline i64 to_long(s8 str, arena scratch) {
   if (*endptr != '\0') {
     printf("Conversion error or invalid characters in string. %d \n", *endptr);
   } else {
-    printf("Converted number: %llu\n", num);
+    //printf("Converted number: %llu\n", num);
   }
   return num;
 }
