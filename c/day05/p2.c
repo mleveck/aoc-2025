@@ -64,7 +64,7 @@ i64list merge_helper(i64list ranges, arena* perm) {
 int main(int argc, char **argv) {
   if (argc > 1)
     INPUT_FNAME = argv[1];
-  arena perm = arena_create((size)1024 * 1024 * 10000);
+  arena perm = arena_create((size)1024 * 1024 * 20);
   arena scratch = arena_create(1024 * 1024 * 4);
   s8 ftext = slurp(INPUT_FNAME, &perm);
   if (ftext.len < 0) {
