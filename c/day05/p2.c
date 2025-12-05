@@ -21,15 +21,20 @@ b32 can_merge(i64 l, i64 u, i64 l2, i64 u2) {
 }
 
 i64list merge_helper(i64list ranges, arena* perm) {
+  // merges an element with all subsequent elements (if any)
+  // Then consider the subsequent elements that it didn't merge with
+
+  // construct merged_ranges
+  // allocate to size of ranges to give enough space, we'll adjust when done
   i64list merged_ranges =
       (i64list){.len = ranges.len, .list = new (perm, i64, ranges.len)};
   usize merged_size = 0;
-  usize merged_idx = 0;
   while (ranges.len) {
-    i64list to_be_merged_ranges =
+    // same with unmerged_ranges
+    // made so that we can only consider ranges that weren't absorbed on next iteration
+    i64list unmerged_ranges =
         (i64list){.len = ranges.len, .list = new (perm, i64, ranges.len)};
-    usize to_be_merged_size = 0;
-    usize to_be_merged_idx = 0;
+    usize unmerged_size = 0;
     i64 lower = ranges.list[0];
     i64 upper = ranges.list[1];
     for (usize j = 2; j < ranges.len; j += 2) {
@@ -40,18 +45,17 @@ i64list merge_helper(i64list ranges, arena* perm) {
         upper = upper > upper2 ? upper : upper2;
         continue;
       } else {
-        to_be_merged_ranges.list[to_be_merged_idx] = lower2;
-        to_be_merged_ranges.list[to_be_merged_idx + 1] = upper2;
-        to_be_merged_idx += 2;
-        to_be_merged_size += 2;
+        unmerged_ranges.list[unmerged_size] = lower2;
+        unmerged_ranges.list[unmerged_size + 1] = upper2;
+        unmerged_size += 2;
       }
     }
-    merged_ranges.list[merged_idx] = lower;
-    merged_ranges.list[merged_idx + 1] = upper;
-    merged_idx +=2;
+    merged_ranges.list[merged_size] = lower;
+    merged_ranges.list[merged_size + 1] = upper;
     merged_size += 2;
-    to_be_merged_ranges.len = to_be_merged_size;
-    ranges = to_be_merged_ranges;
+    unmerged_ranges.len = unmerged_size;
+    // only look at the unmerged ranges on next iteration
+    ranges = unmerged_ranges;
   }
   merged_ranges.len = merged_size;
   return merged_ranges;
@@ -70,6 +74,7 @@ int main(int argc, char **argv) {
 
   s8list lines = get_lines(ftext, &perm);
 
+  // find the break between ranges and ingredients
   usize cut_point = -1;
   for (usize i = 0; i < lines.len; i++) {
     if (lines.list[i].len == 0) {
