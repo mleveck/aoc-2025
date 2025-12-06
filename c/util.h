@@ -178,6 +178,18 @@ static inline s8list splitws(s8 str, arena *perm) {
     return tokens;
 }
 
+void reverse_str(s8 str) {
+    size start = 0;
+    size end = str.len - 1;
+    while (end > start) {
+        u8 tmp = str.data[start];
+        str.data[start] = str.data[end];
+        str.data[end] = tmp;
+        start++;
+        end--;
+    }
+}
+
 static inline s8list get_lines(s8 text, arena *perm) {
     s8list lines = split(text, '\n', perm);
     // if ends in newline don't have an empty last element

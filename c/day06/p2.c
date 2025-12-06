@@ -19,18 +19,6 @@ s8list rotate_nums_left(s8list lines, arena *perm) {
     return rltext;
 }
 
-void reverse(s8 str) {
-    size start = 0;
-    size end = str.len - 1;
-    while (end > start) {
-        u8 tmp = str.data[start];
-        str.data[start] = str.data[end];
-        str.data[end] = tmp;
-        start++;
-        end--;
-    }
-}
-
 s8 parse_operators(s8list lines, arena *perm) {
     // tokenize last line which is operators
     s8list tokens = splitws(lines.data[lines.len - 1], perm);
@@ -53,7 +41,7 @@ int main(int argc, char **argv) {
     }
     s8list lines = get_lines(ftext, &perm);
     s8 operators = parse_operators(lines, &perm);
-    reverse(operators);
+    reverse_str(operators);
     s8list rlines = rotate_nums_left(lines, &perm);
 
     usize rlines_idx = 0;
