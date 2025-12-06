@@ -16,16 +16,16 @@ int main(int argc, char **argv) {
   s8list lines = get_lines(ftext, &perm);
   s8 dirs = (s8){.len = lines.len, .data = new (&perm, u8, lines.len)};
   i64list magnitudes =
-      (i64list){.len = lines.len, .list = new (&perm, i64, lines.len)};
+      (i64list){.len = lines.len, .data = new (&perm, i64, lines.len)};
   for (usize i = 0; i < lines.len; i++) {
-    s8 line = lines.list[i];
+    s8 line = lines.data[i];
     char dir = line.data[0];
     i64 magnitude = to_long(slice(line, 1, line.len), scratch);
     dirs.data[i] = dir;
-    magnitudes.list[i] = magnitude;
+    magnitudes.data[i] = magnitude;
   }
   for (usize i = 0; i < dirs.len; i++) {
-    printf("dir: %c mag: %lld\n", dirs.data[i], magnitudes.list[i]);
+    printf("dir: %c mag: %lld\n", dirs.data[i], magnitudes.data[i]);
   }
 
   i64 pos = 50;
@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
     printf("Startng at pos %lld\n", pos);
     char dir = dirs.data[i];
     i64 rotating_pos = pos;
-    i64 magnitude = magnitudes.list[i];
+    i64 magnitude = magnitudes.data[i];
     if (dir == 'L') {
       for (i64 j = 1; j <= magnitude; j++) {
         rotating_pos--;

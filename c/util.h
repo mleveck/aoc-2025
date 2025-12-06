@@ -117,19 +117,19 @@ RET:
 }
 
 typedef struct i64list {
-  i64 *list;
+  i64 *data;
   size len;
 } i64list;
 
 typedef struct s8list {
-  s8 *list;
+  s8 *data;
   size len;
 } s8list;
 
 static inline s8list split(s8 text, u8 delim, arena *perm) {
   u8 *start = text.data;
   size num_lines = 0;
-  s8list lines = (s8list){.list = NULL, .len = num_lines};
+  s8list lines = (s8list){.data = NULL, .len = num_lines};
   for (int i = 0; i <= text.len; i++) {
     if (i == text.len || text.data[i] == delim) {
       s8 *str = new (perm, s8, 1);
@@ -137,7 +137,7 @@ static inline s8list split(s8 text, u8 delim, arena *perm) {
       str->len = &text.data[i] - start;
       start = &text.data[i] + 1;
       if (num_lines == 0) {
-        lines.list = str;
+        lines.data = str;
       }
       num_lines++;
     }
@@ -151,7 +151,7 @@ static inline s8list get_lines(s8 text, arena *perm) {
   s8list lines = split(text, '\n', perm);
   // if ends in newline don't have an empty last element
   // matches python splitlines()
-  if (lines.list[lines.len -1].len == 0) {
+  if (lines.data[lines.len -1].len == 0) {
     lines.len -= 1;
   }
   return lines;

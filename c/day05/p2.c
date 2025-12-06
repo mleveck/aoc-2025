@@ -27,31 +27,31 @@ i64list merge_helper(i64list ranges, arena* perm) {
   // construct merged_ranges
   // allocate to size of ranges to give enough space, we'll adjust when done
   i64list merged_ranges =
-      (i64list){.len = ranges.len, .list = new (perm, i64, ranges.len)};
+      (i64list){.len = ranges.len, .data = new (perm, i64, ranges.len)};
   usize merged_size = 0;
   while (ranges.len) {
     // same with unmerged_ranges
     // made so that we can only consider ranges that weren't absorbed on next iteration
     i64list unmerged_ranges =
-        (i64list){.len = ranges.len, .list = new (perm, i64, ranges.len)};
+        (i64list){.len = ranges.len, .data = new (perm, i64, ranges.len)};
     usize unmerged_size = 0;
-    i64 lower = ranges.list[0];
-    i64 upper = ranges.list[1];
+    i64 lower = ranges.data[0];
+    i64 upper = ranges.data[1];
     for (usize j = 2; j < ranges.len; j += 2) {
-      i64 lower2 = ranges.list[j];
-      i64 upper2 = ranges.list[j + 1];
+      i64 lower2 = ranges.data[j];
+      i64 upper2 = ranges.data[j + 1];
       if (can_merge(lower, upper, lower2, upper2)) {
         lower = lower < lower2 ? lower : lower2;
         upper = upper > upper2 ? upper : upper2;
         continue;
       } else {
-        unmerged_ranges.list[unmerged_size] = lower2;
-        unmerged_ranges.list[unmerged_size + 1] = upper2;
+        unmerged_ranges.data[unmerged_size] = lower2;
+        unmerged_ranges.data[unmerged_size + 1] = upper2;
         unmerged_size += 2;
       }
     }
-    merged_ranges.list[merged_size] = lower;
-    merged_ranges.list[merged_size + 1] = upper;
+    merged_ranges.data[merged_size] = lower;
+    merged_ranges.data[merged_size + 1] = upper;
     merged_size += 2;
     unmerged_ranges.len = unmerged_size;
     // only look at the unmerged ranges on next iteration
@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
   // find the break between ranges and ingredients
   usize cut_point = -1;
   for (usize i = 0; i < lines.len; i++) {
-    if (lines.list[i].len == 0) {
+    if (lines.data[i].len == 0) {
       cut_point = i;
       break;
     }
@@ -88,16 +88,16 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
-  s8list range_strs = (s8list){.len = cut_point, .list = lines.list};
+  s8list range_strs = (s8list){.len = cut_point, .data = lines.data};
 
   // construct the ranges
   i64 *range_data = new (&perm, i64, range_strs.len * 2);
-  i64list ranges = (i64list){.len = range_strs.len * 2, .list = range_data};
+  i64list ranges = (i64list){.len = range_strs.len * 2, .data = range_data};
   for (usize i = 0; i < range_strs.len; i++) {
     usize range_idx = i * 2;
-    s8list bounds = split(range_strs.list[i], '-', &perm);
-    ranges.list[range_idx] = to_long(bounds.list[0], scratch);
-    ranges.list[range_idx + 1] = to_long(bounds.list[1], scratch);
+    s8list bounds = split(range_strs.data[i], '-', &perm);
+    ranges.data[range_idx] = to_long(bounds.data[0], scratch);
+    ranges.data[range_idx + 1] = to_long(bounds.data[1], scratch);
   }
 
   i64 pre_merge_len = ranges.len;
@@ -111,8 +111,8 @@ int main(int argc, char **argv) {
 
   usize fresh = 0;
   for (usize i = 0; i < merged_ranges.len; i+=2){
-    i64 lower = merged_ranges.list[i];
-    i64 upper = merged_ranges.list[i + 1];
+    i64 lower = merged_ranges.data[i];
+    i64 upper = merged_ranges.data[i + 1];
     fresh += (upper - lower) + 1;
   }
   printf("Fresh count %zu\n", fresh);

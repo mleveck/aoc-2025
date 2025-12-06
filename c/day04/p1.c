@@ -5,8 +5,8 @@
 static char *INPUT_FNAME = "./sample_input.txt";
 
 u8 get_el(s8list grid, usize r, usize c) {
-  if (r < grid.len && c < grid.list[0].len) {
-    return grid.list[r].data[c];
+  if (r < grid.len && c < grid.data[0].len) {
+    return grid.data[r].data[c];
   }
   return '.';
 }
@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
   }
   s8list grid = get_lines(ftext, &perm);
   usize nrows = grid.len;
-  usize ncols = grid.list[0].len;
+  usize ncols = grid.data[0].len;
   usize moveable = 0;
   for (usize r = 0; r < nrows; r++) {
     for (usize c = 0; c < ncols; c++) {

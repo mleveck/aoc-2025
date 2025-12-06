@@ -43,13 +43,13 @@ int main(int argc, char **argv) {
     exit(1);
   }
   s8list lines = get_lines(ftext, &perm);
-  s8list range_strs = split(lines.list[0], ',', &perm);
+  s8list range_strs = split(lines.data[0], ',', &perm);
   i64 bad_code_sum = 0;
   char buf[1000] = {0};
   for (usize i = 0; i < range_strs.len; i++) {
-    s8list range = split(range_strs.list[i], '-', &perm);
-    i64 start = to_long(range.list[0], scratch);
-    i64 end = to_long(range.list[1], scratch);
+    s8list range = split(range_strs.data[i], '-', &perm);
+    i64 start = to_long(range.data[0], scratch);
+    i64 end = to_long(range.data[1], scratch);
     for (usize j = start; j <= end; j++) {
       sprintf(buf, "%zu", j);
       s8 digits = tos8(buf, &perm);

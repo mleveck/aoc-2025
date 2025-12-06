@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
   s8list lines = get_lines(ftext, &perm);
   size joltage = 0;
   for (usize lidx = 0; lidx < lines.len; lidx++) {
-    s8 line = lines.list[lidx];
+    s8 line = lines.data[lidx];
     int max_highdig = -255;
     size max_highdig_idx = -1;
     int max_lowdig = -255;

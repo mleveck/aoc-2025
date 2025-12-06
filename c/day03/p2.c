@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
   s8list lines = get_lines(ftext, &perm);
   size joltage = 0;
   for (usize lidx = 0; lidx < lines.len; lidx++) {
-    s8 line = lines.list[lidx];
+    s8 line = lines.data[lidx];
     i32 digits[12] = {0};
     for (usize d = 0; d < 12; d++) {
       digits[d] = -255;
