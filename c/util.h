@@ -1,7 +1,10 @@
 #ifndef AOC_UTILS_H
 #define AOC_UTILS_H
 
+#include <_abort.h>
+#include <ctype.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -147,6 +150,34 @@ static inline s8list split(s8 text, u8 delim, arena *perm) {
     return lines;
 }
 
+static inline s8list splitws(s8 str, arena *perm) {
+    usize start;
+    size token_count = 0;
+    usize i = 0;
+    s8list tokens = (s8list){.data = NULL, .len = token_count};
+    while (i < str.len) {
+        while (i < str.len && isspace(str.data[i])) {
+            i++;
+        }
+        start = i;
+        while (i < str.len && !isspace(str.data[i])) {
+            i++;
+        }
+        usize end = i;
+        if (start < end) {
+            s8 *token = new (perm, s8, 1);
+            token->data = &str.data[start];
+            token->len = end - start;
+            if (token_count == 0) {
+                tokens.data = token;
+            }
+            token_count++;
+        }
+    }
+    tokens.len = token_count;
+    return tokens;
+}
+
 static inline s8list get_lines(s8 text, arena *perm) {
     s8list lines = split(text, '\n', perm);
     // if ends in newline don't have an empty last element
@@ -174,4 +205,19 @@ static inline i64 to_long(s8 str, arena scratch) {
     }
     return num;
 }
+
+typedef struct c64 {
+    size r;
+    size c;
+} c64;
+
+static inline c64 cadd(c64 c1, c64 c2) {
+    return (c64){c1.r + c2.r, c1.c + c1.c};
+}
+
+typedef struct g64 {
+    i64list *data;
+    size len;
+} g64;
+
 #endif
