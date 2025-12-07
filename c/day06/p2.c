@@ -7,7 +7,7 @@
 static char *INPUT_FNAME = "./sample_input.txt";
 
 s8list rotate_left(s8list lines, arena *perm) {
-    size nrows = lines.len - 1; // last line is operators
+    size nrows = lines.len;
     size ncols = lines.data[0].len;
     s8list rltext = {.data = new (perm, s8, ncols), .len = ncols};
     for (size c = ncols - 1; c > -1; c--) {
@@ -45,9 +45,10 @@ s8ll parse_line_groups(s8list lines, arena *perm, arena scratch) {
     return line_groups;
 }
 
-s8 parse_operators(s8list lines, arena *perm) {
-    // tokenize last line which is operators
-    s8list tokens = splitws(lines.data[lines.len - 1], perm);
+s8 parse_operators(s8 ops_str, arena *perm) {
+    s8list tokens = splitws(ops_str, perm);
+    // We have array of strs, just want a str.
+    // Take 1st char of each str
     s8 operators = {.data = new (perm, u8, tokens.len), .len = tokens.len};
     for (usize i = 0; i < tokens.len; i++) {
         operators.data[i] = tokens.data[i].data[0];
@@ -90,9 +91,11 @@ int main(int argc, char **argv) {
     }
 
     s8list lines = get_lines(ftext, &perm);
-    s8 operators = parse_operators(lines, &perm);
+    s8list num_lines = (s8list){.data= lines.data, .len = lines.len -1};
+    s8 ops_line =  lines.data[lines.len -1];
+    s8list rlines = rotate_left(num_lines, &perm);
+    s8 operators = parse_operators(ops_line, &perm);
     reverse_str(operators);
-    s8list rlines = rotate_left(lines, &perm);
     s8ll line_groups = parse_line_groups(rlines, &perm, scratch);
     i64 answer = process(line_groups, operators, scratch);
 
