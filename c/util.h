@@ -124,6 +124,14 @@ typedef struct i64list {
     size len;
 } i64list;
 
+i64 sum(i64list list) {
+    i64 res = 0;
+    for (usize i = 0; i < list.len; i++) {
+        res += list.data[i];
+    }
+    return res;
+}
+
 typedef struct i64ll {
     i64list *data;
     size len;
@@ -258,4 +266,13 @@ typedef struct g64 {
     size len;
 } g64;
 
+s8 read_input(int argc, char **argv, arena* perm) {
+    char * input_fname = argc > 1 ? argv[1] : "sample_input.txt";
+    s8 ftext = slurp(input_fname, perm);
+    if (ftext.len < 0) {
+        fprintf(stderr, "Couldn't open file %s\n", input_fname);
+        exit(1);
+    }
+    return ftext;
+}
 #endif
