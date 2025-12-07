@@ -4,6 +4,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+void swap(i64list* old, i64list* new) {
+    i64list temp = *old;
+    *old = *new;
+    *new = temp;
+    new->len = 0;
+}
+
 b32 in_i64(i64list list, i64 num) {
     // O(n) but I don't care for this size of data
     for (usize i = 0; i < list.len; i++) {
@@ -53,11 +61,7 @@ i64 process(s8list lines, arena scratch) {
                 exit(1);
             }
         }
-        i64list temp = prev_beam_idxs;
-        prev_beam_idxs = new_beam_idxs;
-        new_beam_idxs = temp;
-        memset(new_beam_idxs.data, 0, sizeof(i64) * new_beam_idxs.len);
-        new_beam_idxs.len = 0;
+        swap(&prev_beam_idxs, &new_beam_idxs);
     }
     return nsplits;
 }
