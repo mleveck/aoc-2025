@@ -124,10 +124,21 @@ typedef struct i64list {
     size len;
 } i64list;
 
+typedef struct i64ll {
+    i64list *data;
+    size len;
+} i64ll;
+
 typedef struct s8list {
     s8 *data;
     size len;
 } s8list;
+
+typedef struct s8ll {
+    s8list *data;
+    size len;
+} s8ll;
+
 
 static inline s8list split(s8 text, u8 delim, arena *perm) {
     u8 *start = text.data;
@@ -176,6 +187,21 @@ static inline s8list splitws(s8 str, arena *perm) {
     }
     tokens.len = token_count;
     return tokens;
+}
+
+s8 stripws(s8 str) {
+    size i = 0;
+    while (i < str.len && isspace(str.data[i])) {
+        i++;
+    }
+
+    usize start = i;
+
+    while (i < str.len && !isspace(str.data[i])) {
+        i++;
+    }
+    usize end = i;
+    return (s8){.data= &str.data[start], .len=end - start};
 }
 
 void reverse_str(s8 str) {
