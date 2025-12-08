@@ -296,4 +296,24 @@ s8 read_input(int argc, char **argv, arena* perm) {
     }
     return ftext;
 }
+
+
+i64 combinations(i64 n, i64 r) { // from Gemini
+    if (r < 0 || r > n) {
+        return 0; // Invalid input for combinations
+    }
+    if (r == 0 || r == n) {
+        return 1; // Base case: nC0 or nCn is always 1
+    }
+    if (r > n / 2) { // Optimization: C(n,r) = C(n, n-r)
+        r = n - r;
+    }
+
+    i64 res = 1;
+    for (int i = 1; i <= r; ++i) {
+        res = res * (n - i + 1) / i;
+    }
+    return res;
+}
+
 #endif

@@ -1,67 +1,48 @@
 #include "../util.h"
 #include <assert.h>
-#include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-i64 combinations(i64 n, i64 r) { // from Gemini
-    if (r < 0 || r > n) {
-        return 0; // Invalid input for combinations
-    }
-    if (r == 0 || r == n) {
-        return 1; // Base case: nC0 or nCn is always 1
-    }
-    if (r > n / 2) { // Optimization: C(n,r) = C(n, n-r)
-        r = n - r;
-    }
-
-    i64 res = 1;
-    for (int i = 1; i <= r; ++i) {
-        res = res * (n - i + 1) / i;
-    }
-    return res;
-}
-
-typedef struct jb {
+typedef struct b { // Not the greatest name give bools are b32. But b means
+                   // (junction) box.
     i64 x, y, z;
-} jb;
+} b;
 
-typedef struct jblist {
-    jb *data;
+typedef struct blist {
+    b *data;
     size len;
-} jblist;
+} blist;
 
-typedef struct jbpair {
-    i64 idx1, idx2;
-    i64 dist;
-} jbpair;
+typedef struct bpair {
+    i64 idx1, idx2, dist;
+} bpair;
 
-typedef struct jbpl {
-    jbpair *data;
+typedef struct bpl {
+    bpair *data;
     size len;
-} jbpl;
+} bpl;
 
-jblist parse_input(s8list lines, arena *perm, arena scratch) {
-    jblist boxes = {.data = new (perm, jb, lines.len), .len = lines.len};
+blist parse_input(s8list lines, arena *perm, arena scratch) {
+    blist boxes = {.data = new (perm, b, lines.len), .len = lines.len};
     for (usize row = 0; row < lines.len; row++) {
         s8 line = lines.data[row];
         s8list toks = split(line, ',', perm);
         assert(3 == toks.len);
-        jb box = {.x = to_long(toks.data[0], scratch),
-                  .y = to_long(toks.data[1], scratch),
-                  .z = to_long(toks.data[2], scratch)};
+        b box = {.x = to_long(toks.data[0], scratch),
+                 .y = to_long(toks.data[1], scratch),
+                 .z = to_long(toks.data[2], scratch)};
         boxes.data[row] = box;
     }
     return boxes;
 }
 
-void append_jbp(jbpl *box_pairs, jbpair box_pair) {
+void append_bp(bpl *box_pairs, bpair box_pair) {
     box_pairs->data[box_pairs->len++] = box_pair;
 }
 
-double calc_dist(jb box1, jb box2) {
+double calc_dist(b box1, b box2) {
     // we only care about relative distances, so no need for sqrt
     i64 dx = box1.x - box2.x;
     i64 dy = box1.y - box2.y;
@@ -69,25 +50,25 @@ double calc_dist(jb box1, jb box2) {
     return dx * dx + dy * dy + dz * dz;
 }
 
-jbpl gen_jb_pairs(jblist boxes, arena *perm) {
-    jbpl box_pairs = {.data = new (perm, jbpair, combinations(boxes.len, 2)),
-                      .len = 0};
+bpl gen_box_pairs(blist boxes, arena *perm) {
+    bpl box_pairs = {.data = new (perm, bpair, combinations(boxes.len, 2)),
+                     .len = 0};
     for (size b1_idx = 0; b1_idx < boxes.len - 1; b1_idx++) {
-        jb box1 = boxes.data[b1_idx];
+        b box1 = boxes.data[b1_idx];
         for (size b2_idx = b1_idx + 1; b2_idx < boxes.len; b2_idx++) {
-            jb box2 = boxes.data[b2_idx];
+            b box2 = boxes.data[b2_idx];
             i64 dist = calc_dist(box1, box2);
-            jbpair pair = {.idx1 = b1_idx, .idx2 = b2_idx, .dist = dist};
-            append_jbp(&box_pairs, pair);
+            bpair pair = {.idx1 = b1_idx, .idx2 = b2_idx, .dist = dist};
+            append_bp(&box_pairs, pair);
         }
     }
     assert(combinations(boxes.len, 2) == box_pairs.len);
     return box_pairs;
 }
 
-int comp_jbpairs(const void *pair1_ptr, const void *pair2_ptr) {
-    jbpair *pair1 = (jbpair *)pair1_ptr;
-    jbpair *pair2 = (jbpair *)pair2_ptr;
+int cmp_bpairs(const void *pair1_ptr, const void *pair2_ptr) {
+    bpair *pair1 = (bpair *)pair1_ptr;
+    bpair *pair2 = (bpair *)pair2_ptr;
     if (pair1->dist < pair2->dist) {
         return -1;
     }
@@ -97,12 +78,12 @@ int comp_jbpairs(const void *pair1_ptr, const void *pair2_ptr) {
     return 0;
 }
 
-i64 assign_circuits(jbpl box_pairs, jblist boxes, arena *perm) {
+i64 assign_circuits(bpl box_pairs, blist boxes, arena *perm) {
     i64list circuit_assignments = {.data = new (perm, i64, boxes.len),
                                    .len = boxes.len};
     i64 max_circuit_id = 1;
     for (usize i = 0; i < box_pairs.len; i++) {
-        jbpair box_pair = box_pairs.data[i];
+        bpair box_pair = box_pairs.data[i];
         i64 ca1 = circuit_assignments.data[box_pair.idx1];
         i64 ca2 = circuit_assignments.data[box_pair.idx2];
         i64 circuit_id;
@@ -152,9 +133,9 @@ int main(int argc, char **argv) {
     s8 input_text = read_input(argc, argv, &perm);
 
     s8list lines = get_lines(input_text, &perm);
-    jblist boxes = parse_input(lines, &perm, scratch);
-    jbpl box_pairs = gen_jb_pairs(boxes, &perm);
-    qsort(box_pairs.data, box_pairs.len, sizeof(jbpair), comp_jbpairs);
+    blist boxes = parse_input(lines, &perm, scratch);
+    bpl box_pairs = gen_box_pairs(boxes, &perm);
+    qsort(box_pairs.data, box_pairs.len, sizeof(bpair), cmp_bpairs);
     i64 answer = assign_circuits(box_pairs, boxes, &perm);
     printf("Answer: %lld\n", answer);
     return 0;
