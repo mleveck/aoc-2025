@@ -95,7 +95,7 @@ int main(int argc, char **argv) {
     s8 ops_line =  lines.data[lines.len -1];
     s8list rlines = rotate_left(num_lines, &perm);
     s8 operators = parse_operators(ops_line, &perm);
-    reverse_str(operators);
+    reverse_s8(operators);
     s8ll line_groups = parse_line_groups(rlines, &perm, scratch);
     i64 answer = process(line_groups, operators, scratch);
 

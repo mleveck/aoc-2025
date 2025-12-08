@@ -212,7 +212,7 @@ s8 stripws(s8 str) {
     return (s8){.data= &str.data[start], .len=end - start};
 }
 
-void reverse_str(s8 str) {
+void reverse_s8(s8 str) {
     size start = 0;
     size end = str.len - 1;
     while (end > start) {
