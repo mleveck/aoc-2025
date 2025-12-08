@@ -110,7 +110,7 @@ i64 assign_circuits(jbpl box_pairs, jblist boxes, arena *perm) {
             if (ca1 == ca2) { // already in the same circuit nothing to do
                 continue;
             }
-            // both in existing circuits so join all from the larger cirucuit_id
+            // both in existing circuits so join all from the larger circuit_id
             // into the lower one
             i64 min_circuit_id = ca1 < ca2 ? ca1 : ca2;
             i64 max_circuit_id = ca1 > ca2 ? ca1 : ca2;
