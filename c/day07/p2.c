@@ -57,8 +57,8 @@ i64 process(s8list lines, arena scratch) {
 }
 
 int main(int argc, char **argv) {
-    arena perm = arena_create(1024 * 1024 * 40);
-    arena scratch = arena_create(1024 * 1024 * 4);
+    arena perm = arena_create(1024 * 40);
+    arena scratch = arena_create(1024  * 4);
     s8 input_text = read_input(argc, argv, &perm);
 
     s8list lines = get_lines(input_text, &perm);
