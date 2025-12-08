@@ -132,6 +132,14 @@ i64 sum(i64list list) {
     return res;
 }
 
+i64 product(i64list list) {
+    i64 res = 1;
+    for (usize i = 0; i < list.len; i++) {
+        res *= list.data[i];
+    }
+    return res;
+}
+
 typedef struct i64ll {
     i64list *data;
     size len;

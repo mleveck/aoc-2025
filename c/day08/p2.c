@@ -131,9 +131,8 @@ i64 assign_circuits(jbpl box_pairs, jblist boxes, arena *perm) {
         circuit_assignments.data[box_pair.idx1] = circuit_id;
         circuit_assignments.data[box_pair.idx2] = circuit_id;
         b32 done = 1;
-        for (usize f = 0; f < circuit_assignments.len - 1; f++) {
-            if (circuit_assignments.data[f] !=
-                circuit_assignments.data[f + 1]) {
+        for (usize f = 0; f < circuit_assignments.len; f++) {
+            if (1 != circuit_assignments.data[f]) {
                 done = 0;
                 break;
             }
