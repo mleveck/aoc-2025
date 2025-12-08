@@ -224,6 +224,19 @@ void reverse_s8(s8 str) {
     }
 }
 
+static inline s8 reversed_s8(s8 str, arena *a) {
+    s8 revs8 = {.data = new(a, u8, str.len), .len = str.len};
+    size start = 0;
+    size end = str.len - 1;
+    while (end >= start) {
+        revs8.data[start] = str.data[end];
+        revs8.data[end] = str.data[start];
+        start++;
+        end--;
+    }
+    return revs8;
+}
+
 static inline s8list get_lines(s8 text, arena *perm) {
     s8list lines = split(text, '\n', perm);
     // if ends in newline don't have an empty last element
