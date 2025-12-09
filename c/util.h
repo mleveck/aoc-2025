@@ -3,6 +3,7 @@
 
 #include <_abort.h>
 #include <ctype.h>
+#include <errno.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -262,13 +263,13 @@ static inline s8 slice(s8 str, usize start, usize end) {
 }
 
 static inline i64 to_long(s8 str, arena scratch) {
+    u8 *cstr = tocstr(str, &scratch);
     char *endptr;
-    i64 num = strtoll((char *)tocstr(str, &scratch), &endptr, 10);
-    if (*endptr != '\0') {
-        printf("Conversion error or invalid characters in string. %d \n",
-               *endptr);
-    } else {
-        // printf("Converted number: %llu\n", num);
+    errno = 0;
+    i64 num = strtoll((char*)cstr, &endptr, 10);
+    if ((char*)cstr == endptr || errno == ERANGE || *endptr != '\0') {
+        printf("Error parsing integer or out of bounds.\n");
+        exit(1);
     }
     return num;
 }
