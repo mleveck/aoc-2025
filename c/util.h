@@ -156,7 +156,6 @@ typedef struct s8ll {
     size len;
 } s8ll;
 
-
 static inline s8list split(s8 text, u8 delim, arena *perm) {
     u8 *start = text.data;
     size num_lines = 0;
@@ -218,7 +217,7 @@ s8 stripws(s8 str) {
         i++;
     }
     usize end = i;
-    return (s8){.data= &str.data[start], .len=end - start};
+    return (s8){.data = &str.data[start], .len = end - start};
 }
 
 void reverse_s8(s8 str) {
@@ -234,7 +233,7 @@ void reverse_s8(s8 str) {
 }
 
 static inline s8 reversed_s8(s8 str, arena *a) {
-    s8 revs8 = {.data = new(a, u8, str.len), .len = str.len};
+    s8 revs8 = {.data = new (a, u8, str.len), .len = str.len};
     size start = 0;
     size end = str.len - 1;
     while (end >= start) {
@@ -266,10 +265,17 @@ static inline i64 to_long(s8 str, arena scratch) {
     u8 *cstr = tocstr(str, &scratch);
     char *endptr;
     errno = 0;
-    i64 num = strtoll((char*)cstr, &endptr, 10);
-    if ((char*)cstr == endptr || errno == ERANGE || *endptr != '\0') {
-        printf("Error parsing integer or out of bounds.\n");
+    i64 num = strtoll((char *)cstr, &endptr, 10);
+    if ((char *)cstr == endptr || errno == ERANGE || *endptr != '\0') {
+        fprintf(stderr, "Error parsing integer or out of bounds parsing %s.\n",
+                cstr);
         exit(1);
+    }
+    if (*endptr != '\0') {
+        fprintf(stderr,
+                "Parsed error for %s.  Terminated parsing on unexpected "
+                "character %d\n",
+                cstr, *endptr);
     }
     return num;
 }
@@ -288,8 +294,8 @@ typedef struct g64 {
     size len;
 } g64;
 
-s8 read_input(int argc, char **argv, arena* perm) {
-    char * input_fname = argc > 1 ? argv[1] : "sample_input.txt";
+s8 read_input(int argc, char **argv, arena *perm) {
+    char *input_fname = argc > 1 ? argv[1] : "sample_input.txt";
     s8 ftext = slurp(input_fname, perm);
     if (ftext.len < 0) {
         fprintf(stderr, "Couldn't open file %s\n", input_fname);
@@ -297,7 +303,6 @@ s8 read_input(int argc, char **argv, arena* perm) {
     }
     return ftext;
 }
-
 
 i64 combinations(i64 n, i64 r) { // from Gemini
     if (r < 0 || r > n) {
