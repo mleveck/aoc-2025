@@ -109,7 +109,8 @@ b32 process_button_combos(u32 lights, u32list buttons, u32list bcombo, size bcom
         }
         return 0;
     }
-    for (size i = 0; i < buttons.len && buttons.len - i >= r - bcombo_idx; i++) {
+    size bcombo_idxs_to_fill = r - bcombo_idx;
+    for (size i = 0; i < buttons.len && buttons.len - i >=  bcombo_idxs_to_fill; i++) {
         bcombo.data[bcombo_idx] = buttons.data[i];
         u32list buttons_rest = slice_u32l(buttons, i + 1, buttons.len);
         if (process_button_combos(lights, buttons_rest, bcombo, bcombo_idx + 1, r)) {
