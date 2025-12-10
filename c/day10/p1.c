@@ -25,8 +25,6 @@ machinelist new_machinelist(size cap, size len, arena *a) {
 
 void append_machine(machinelist *ms, machine m) { ms->data[ms->len++] = m; }
 
-void append_u32(u32list *l, u32 num) { l->data[l->len++] = num; }
-
 u32 parse_lights(s8 ls_str) {
     u32 lights = 0;
     s8 light_chars = slice(ls_str, 1, ls_str.len - 1); // strip [ and ]
@@ -46,11 +44,11 @@ u32 parse_lights(s8 ls_str) {
     return lights;
 }
 
-u32list parse_buttons(s8list bs_strs, u32 lights_len, arena *perm, arena scratch) {
-    u32list buttons = new_u32list(bs_strs.len, 0, perm);
-    for (size i = 0; i < bs_strs.len; i++) {
+u32list parse_buttons(s8list buttons_strs, u32 lights_len, arena *perm, arena scratch) {
+    u32list buttons = new_u32list(buttons_strs.len, 0, perm);
+    for (size i = 0; i < buttons_strs.len; i++) {
         u32 button = 0;
-        s8 bstr = bs_strs.data[i];
+        s8 bstr = buttons_strs.data[i];
         bstr = slice(bstr, 1, bstr.len - 1); // strip ( and )
         s8list bstr_toks = split(bstr, ',', &scratch);
         for (size j = 0; j < bstr_toks.len; j++) {
@@ -60,7 +58,7 @@ u32list parse_buttons(s8list bs_strs, u32 lights_len, arena *perm, arena scratch
         }
         append_u32(&buttons, button);
     }
-    assert(buttons.len == bs_strs.len);
+    assert(buttons.len == buttons_strs.len);
     return buttons;
 }
 
@@ -71,7 +69,8 @@ machinelist parse_input(s8list lines, arena *perm, arena scratch) {
         s8list mach_toks = splitws(line, perm);
         s8 lights_str = mach_toks.data[0];
         u32 lights = parse_lights(lights_str);
-        u32list buttons = parse_buttons(slice_s8l(mach_toks, 1, mach_toks.len - 1), lights_str.len - 2, perm, scratch);
+        s8list button_strs = slice_s8l(mach_toks, 1, mach_toks.len - 1);
+        u32list buttons = parse_buttons(button_strs, lights_str.len - 2, perm, scratch);
         append_machine(&ml, (machine){lights, buttons});
     }
     assert(ml.len == lines.len);

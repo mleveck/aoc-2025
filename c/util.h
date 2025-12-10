@@ -299,6 +299,8 @@ u32list new_u32list(size cap, size len, arena *a) {
     return l;
 }
 
+void append_u32(u32list *l, u32 num) { l->data[l->len++] = num; }
+
 static inline u32list slice_u32l(u32list l, size start, size end) {
     return (u32list){
         .data = &l.data[start],
