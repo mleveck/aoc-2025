@@ -261,11 +261,55 @@ static inline s8 slice(s8 str, usize start, usize end) {
         .len = (size)(str.len <= end ? str.len - start : (size)end - start)};
 }
 
+static inline s8list slice_s8l(s8list strl, size start, size end) {
+    return (s8list){
+        .data = &strl.data[start],
+        .len = (size)(strl.len < end ? strl.len - start : end - start)};
+}
+
 static inline i64 to_long(s8 str, arena scratch) {
     u8 *cstr = tocstr(str, &scratch);
     char *endptr;
     errno = 0;
     i64 num = strtoll((char *)cstr, &endptr, 10);
+    if ((char *)cstr == endptr || errno == ERANGE || *endptr != '\0') {
+        fprintf(stderr, "Error parsing integer or out of bounds parsing %s.\n",
+                cstr);
+        exit(1);
+    }
+    if (*endptr != '\0') {
+        fprintf(stderr,
+                "Parsed error for %s.  Terminated parsing on unexpected "
+                "character %d\n",
+                cstr, *endptr);
+    }
+    return num;
+}
+
+
+typedef struct {
+    u32 *data;
+    size len;
+} u32list;
+
+u32list new_u32list(size cap, size len, arena *a) {
+    u32list l;
+    l.len = len;
+    l.data = new (a, u32, cap);
+    return l;
+}
+
+static inline u32list slice_u32l(u32list l, size start, size end) {
+    return (u32list){
+        .data = &l.data[start],
+        .len = (size)(l.len < end ? l.len - start : end - start)};
+}
+
+static inline u32 to_u32(s8 str, arena scratch) {
+    u8 *cstr = tocstr(str, &scratch);
+    char *endptr;
+    errno = 0;
+    u32 num = strtoul((char *)cstr, &endptr, 10);
     if ((char *)cstr == endptr || errno == ERANGE || *endptr != '\0') {
         fprintf(stderr, "Error parsing integer or out of bounds parsing %s.\n",
                 cstr);
@@ -320,6 +364,18 @@ i64 combinations(i64 n, i64 r) { // from Gemini
         res = res * (n - i + 1) / i;
     }
     return res;
+}
+
+void print_binary(u32 num) { // From Gemini
+    int num_bits = 8;
+
+    for (int i = num_bits - 1; i >= 0; i--) {
+        printf("%d", (num >> i) & 1);
+
+        if (i % 4 == 0 && i != 0) {
+            printf(" ");
+        }
+    }
 }
 
 #endif
