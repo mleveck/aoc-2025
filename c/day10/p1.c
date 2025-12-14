@@ -90,7 +90,7 @@ void print_machine(machine m) {
     printf("\n");
 }
 
-b32 eval_button_combo(u32 lights, u32list b_combo) {
+static inline b32 eval_button_combo(u32 lights, u32list b_combo) {
     u32 lights_state = 0;
     for (size i = 0; i < b_combo.len; i++) {
         u32 button = b_combo.data[i];
@@ -139,7 +139,7 @@ i64 process(machinelist machines, arena scratch) {
 }
 
 int main(int argc, char **argv) {
-    arena perm = arena_create(1024L * 1024 * 40);
+    arena perm = arena_create(1024L * 100);
     arena scratch = arena_create(1024L * 4);
     s8 input_text = read_input(argc, argv, &perm);
 

@@ -390,6 +390,25 @@ static inline u32 to_u32(s8 str, arena scratch) {
     return num;
 }
 
+static inline i32 to_i32(s8 str, arena scratch) {
+    u8 *cstr = tocstr(str, &scratch);
+    char *endptr;
+    errno = 0;
+    i32 num = strtol((char *)cstr, &endptr, 10);
+    if ((char *)cstr == endptr || errno == ERANGE || *endptr != '\0') {
+        fprintf(stderr, "Error parsing integer or out of bounds parsing %s.\n",
+                cstr);
+        exit(1);
+    }
+    if (*endptr != '\0') {
+        fprintf(stderr,
+                "Parsed error for %s.  Terminated parsing on unexpected "
+                "character %d\n",
+                cstr, *endptr);
+    }
+    return num;
+}
+
 typedef struct c64 {
     size r;
     size c;
