@@ -124,7 +124,6 @@ i64 process_all_button_combos(machine m, arena scratch) {
         if (process_button_combos(m.lights, m.buttons, combo, 0, r)) {
             return r;
         }
-        memset(combo.data, 0, combo.len * sizeof(u32));
     }
     print_machine(m);
     assert(0 && "Failed to find working button combo");
