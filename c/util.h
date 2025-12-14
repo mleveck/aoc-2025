@@ -125,7 +125,18 @@ typedef struct i64list {
     size len;
 } i64list;
 
-i64 sum(i64list list) {
+static inline i64list new_i64list(size cap, size len, arena* a){
+    i64list l = {0};
+    l.len = len;
+    l.data = new(a, i64, cap);
+    return l;
+}
+
+static inline void append_i64(i64list *l, i64 num){
+    l->data[l->len++] = num;
+}
+
+static inline i64 sum(i64list list) {
     i64 res = 0;
     for (usize i = 0; i < list.len; i++) {
         res += list.data[i];
@@ -133,7 +144,7 @@ i64 sum(i64list list) {
     return res;
 }
 
-i64 product(i64list list) {
+static inline i64 product(i64list list) {
     i64 res = 1;
     for (usize i = 0; i < list.len; i++) {
         res *= list.data[i];
@@ -155,6 +166,59 @@ typedef struct s8ll {
     s8list *data;
     size len;
 } s8ll;
+
+static inline i64ll new_i64ll(size cap, size len, arena *a){
+    i64ll l = {0};
+    l.len = len;
+    l.data = new(a, i64list, cap);
+    return l;
+}
+
+static inline void append_i64l(i64ll* ll, i64list l) {
+    ll->data[ll->len++] = l;
+}
+
+static inline s8list new_s8list(size cap, size len, arena *a){
+    s8list sl;
+    sl.len = len;
+    sl.data = new(a, s8, cap);
+    return sl;
+}
+
+static inline void append_s8(s8list* sl, s8 s){
+    sl->data[sl->len++] = s;
+}
+
+static inline i32 s8cmp(const void *s1ptr, const void *s2ptr) {
+    s8 s1 = *(s8 *)s1ptr;
+    s8 s2 = *(s8 *)s2ptr;
+    size minlen = s1.len < s2.len ? s1.len : s2.len;
+    int cmp;
+    if ((cmp = memcmp(s1.data, s2.data, minlen)))
+        return cmp;
+    return s1.len - s2.len;
+    return 0;
+}
+
+static inline b32 s8equals(s8 s1, s8 s2) { return (s1.len == s2.len && !memcmp(s1.data, s2.data, s1.len)); }
+
+static inline b32 in_s8l(s8list sl, s8 key) {
+    for (size i = 0; i < sl.len; i++) {
+        s8 el = sl.data[i];
+        if (s8equals(el, key))
+            return 1;
+    }
+    return 0;
+}
+
+static inline size idx_of_s8(s8list sl, s8 key) {
+    for (size i = 0; i < sl.len; i++) {
+        s8 el = sl.data[i];
+        if (s8equals(el, key))
+            return i;
+    }
+    return -1;
+}
 
 static inline s8list split(s8 text, u8 delim, arena *perm) {
     u8 *start = text.data;
@@ -205,7 +269,7 @@ static inline s8list splitws(s8 str, arena *perm) {
     return tokens;
 }
 
-s8 stripws(s8 str) {
+static inline s8 stripws(s8 str) {
     size i = 0;
     while (i < str.len && isspace(str.data[i])) {
         i++;
@@ -220,7 +284,7 @@ s8 stripws(s8 str) {
     return (s8){.data = &str.data[start], .len = end - start};
 }
 
-void reverse_s8(s8 str) {
+static inline void reverse_s8(s8 str) {
     size start = 0;
     size end = str.len - 1;
     while (end > start) {

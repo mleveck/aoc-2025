@@ -104,10 +104,7 @@ b32 eval_button_combo(u32 lights, u32list b_combo) {
 
 b32 process_button_combos(u32 lights, u32list buttons, u32list bcombo, size bcombo_idx, size r) {
     if (bcombo_idx == bcombo.len) {
-        if (eval_button_combo(lights, bcombo)) {
-            return 1;
-        }
-        return 0;
+        return eval_button_combo(lights, bcombo);
     }
     size bcombo_idxs_to_fill = r - bcombo_idx;
     for (size i = 0; i < buttons.len && buttons.len - i >=  bcombo_idxs_to_fill; i++) {
