@@ -1,5 +1,6 @@
 #include "../util.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 static char *INPUT_FNAME = "./sample_input.txt";
@@ -28,7 +29,6 @@ int main(int argc, char **argv) {
   if (argc > 1)
     INPUT_FNAME = argv[1];
   arena perm = arena_create(1024 * 1024 * 40);
-  arena scratch = arena_create(1024 * 1024 * 4);
   s8 ftext = slurp(INPUT_FNAME, &perm);
   if (ftext.len < 0) {
     fprintf(stderr, "Couldn't open file %s\n", INPUT_FNAME);
