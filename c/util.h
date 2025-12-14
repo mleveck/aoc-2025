@@ -409,6 +409,48 @@ static inline i32 to_i32(s8 str, arena scratch) {
     return num;
 }
 
+typedef struct {
+    i32 *data;
+    size len;
+} i32list;
+
+typedef struct {
+    f64 *data;
+    size len;
+} f64list;
+
+typedef struct {
+    i32list *data;
+    size len;
+} i32ll;
+
+static inline i32list new_i32list(size cap, size len, arena *a) {
+    i32list l = {0};
+    l.len = len;
+    l.data = new (a, i32, cap);
+    return l;
+}
+
+static inline f64list new_f64list(size cap, size len, arena *a) {
+    f64list l = {0};
+    l.len = len;
+    l.data = new (a, f64, cap);
+    return l;
+}
+
+static inline void append_f64(f64list *l, f64 num) { l->data[l->len++] = num; }
+
+static inline void append_i32(i32list *l, i32 num) { l->data[l->len++] = num; }
+
+static inline i32ll new_i32ll(size cap, size len, arena *a) {
+    i32ll ll = {0};
+    ll.len = len;
+    ll.data = new (a, i32list, cap);
+    return ll;
+}
+
+static inline void append_i32list(i32ll *ll, i32list l) { ll->data[ll->len++] = l; }
+
 typedef struct c64 {
     size r;
     size c;

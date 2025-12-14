@@ -7,48 +7,6 @@
 #include <string.h>
 
 typedef struct {
-    i32 *data;
-    size len;
-} i32list;
-
-typedef struct {
-    f64 *data;
-    size len;
-} f64list;
-
-typedef struct {
-    i32list *data;
-    size len;
-} i32ll;
-
-i32list new_i32list(size cap, size len, arena *a) {
-    i32list l = {0};
-    l.len = len;
-    l.data = new (a, i32, cap);
-    return l;
-}
-
-f64list new_f64list(size cap, size len, arena *a) {
-    f64list l = {0};
-    l.len = len;
-    l.data = new (a, f64, cap);
-    return l;
-}
-
-void append_f64(f64list *l, f64 num) { l->data[l->len++] = num; }
-
-void append_i32(i32list *l, i32 num) { l->data[l->len++] = num; }
-
-i32ll new_i32ll(size cap, size len, arena *a) {
-    i32ll ll = {0};
-    ll.len = len;
-    ll.data = new (a, i32list, cap);
-    return ll;
-}
-
-void append_i32list(i32ll *ll, i32list l) { ll->data[ll->len++] = l; }
-
-typedef struct {
     i32list counters;
     i32ll buttons;
 } machine;
@@ -133,9 +91,10 @@ void print_machine(machine m) {
 
 i64 process_machine(machine m, arena scratch) {
     glp_prob *lp = glp_create_prob();
-    glp_set_obj_dir(lp, GLP_MIN);
     i32ll buttons = m.buttons;
     i32list counters = m.counters;
+
+    glp_set_obj_dir(lp, GLP_MIN); // we're minimizing
 
     glp_add_cols(lp, buttons.len);
     for (size i = 1; i <= buttons.len; i++) {
