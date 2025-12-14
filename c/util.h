@@ -2,6 +2,7 @@
 #define AOC_UTILS_H
 
 #include <_abort.h>
+#include <assert.h>
 #include <ctype.h>
 #include <errno.h>
 #include <stddef.h>
@@ -505,4 +506,36 @@ void print_binary(u32 num) { // From Gemini
     }
 }
 
+typedef struct {
+    size cap;
+    size len;
+    size head;
+    size tail;
+    s8* data;
+} queue;
+
+static inline queue new_queue(size cap, arena *a) {
+    queue q;
+    q.len = 0;
+    q.head = 0;
+    q.tail = 0;
+    q.cap = cap;
+    q.data = new(a, s8, cap);
+    return q;
+}
+
+static inline s8 popleft (queue* q) {
+    assert(q->len > 0);
+    s8 ret = q->data[q->head % q->cap];
+    q->len--;
+    q->head++; 
+    return ret;
+}
+
+static inline void pushq(queue* q, s8 el) {
+    assert (q->len < q->cap);
+    q->len++;
+    q->data[q->tail % q->cap] = el;
+    q->tail++;
+}
 #endif
