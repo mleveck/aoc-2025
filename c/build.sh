@@ -107,7 +107,25 @@ if [ "$PART_ARG" = "all" ]; then
         echo "Building $day_name/$part..."
         cd "$day_dir"
 
-        if $CC $CFLAGS -o "$part" "${part}.c" 2>&1; then
+        # Special handling for day10/p2 which needs GLPK
+        LDFLAGS=""
+        if [[ "$day_name" == "day10" && "$part" == "p2" ]]; then
+            export LIBRARY_PATH=/opt/homebrew/lib
+            export CPATH=/opt/homebrew/include
+            LDFLAGS="-lglpk"
+            echo "  Linking with GLPK..."
+
+            # Check if GLPK is available
+            if ! pkg-config --exists glpk 2>/dev/null && [ ! -f /opt/homebrew/include/glpk.h ]; then
+                echo ""
+                echo "  WARNING: GLPK not found!"
+                echo "  Day 10 Part 2 requires the GLPK (GNU Linear Programming Kit) library."
+                echo "  To install on macOS with Homebrew: brew install glpk"
+                echo ""
+            fi
+        fi
+
+        if $CC $CFLAGS -o "$part" "${part}.c" $LDFLAGS 2>&1; then
             echo "  ✓ $day_name/$part"
             SUCCEEDED+=("$day_name/$part")
         else
@@ -173,7 +191,28 @@ fi
 # Build
 echo "Building $(basename "$DAY_DIR")/$PART..."
 cd "$DAY_DIR"
-$CC $CFLAGS -o "$PART" "${PART}.c"
+
+# Special handling for day10/p2 which needs GLPK
+LDFLAGS=""
+if [[ "$(basename "$DAY_DIR")" == "day10" && "$PART" == "p2" ]]; then
+    export LIBRARY_PATH=/opt/homebrew/lib
+    export CPATH=/opt/homebrew/include
+    LDFLAGS="-lglpk"
+    echo "Linking with GLPK..."
+
+    # Check if GLPK is available
+    if ! pkg-config --exists glpk 2>/dev/null && [ ! -f /opt/homebrew/include/glpk.h ]; then
+        echo ""
+        echo "WARNING: GLPK not found!"
+        echo "Day 10 Part 2 requires the GLPK (GNU Linear Programming Kit) library."
+        echo ""
+        echo "To install on macOS with Homebrew:"
+        echo "  brew install glpk"
+        echo ""
+    fi
+fi
+
+$CC $CFLAGS -o "$PART" "${PART}.c" $LDFLAGS
 
 if [ $? -ne 0 ]; then
     echo "Build failed!"
