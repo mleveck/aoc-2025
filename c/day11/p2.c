@@ -83,7 +83,7 @@ s8list dedupe_nodes(s8list nodes, arena *perm) {
 
 s8list get_nodes(adjslist str_graph, arena *perm) {
     size max_num_nodes = str_graph.len;
-    // We don't know how many nodes aren't keys. Probly just "out"
+    // We don't know how many nodes aren't keys. Probably just "out"
     // But idk.  So allocate for keys + neighbors
     for (size i = 0; i <= str_graph.len; i++) {
         s8list neighbors = str_graph.data[i].neighbors;
