@@ -1,5 +1,4 @@
 #include "../util.h"
-#include <math.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -15,9 +14,10 @@ int main(int argc, char **argv) {
     exit(1);
   }
   s8list lines = get_lines(ftext, &perm);
-  size joltage = 0;
+  size total_joltage = 0;
   for (usize lidx = 0; lidx < lines.len; lidx++) {
     s8 line = lines.data[lidx];
+    i64 joltage = 0;
     i32 digits[12] = {0};
     for (usize d = 0; d < 12; d++) {
       digits[d] = -255;
@@ -32,9 +32,10 @@ int main(int argc, char **argv) {
       }
     }
     for (usize z = 0; z < 12; z++) {
-      joltage += (digits[z] - '0') * (i64)pow((double)10, (double)(11 - z)) ;
+      joltage = joltage * 10 + digits[z] - '0';
     }
+    total_joltage += joltage;
   }
-  printf("Joltage: %td\n", joltage);
+  printf("Joltage: %td\n", total_joltage);
   return 0;
 }
