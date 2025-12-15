@@ -33,5 +33,8 @@ sample*.txt
 test.txt
 test.c
 
+# clangd compile instructions (will contain absolute paths)
+compile_commands.json
+
 # clangd cache
 .cache/
