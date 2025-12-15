@@ -24,13 +24,11 @@ adjslist new_adjslist(size cap, size len, arena *a) {
 
 void append_adjs(adjslist *al, adjs a) { al->data[al->len++] = a; }
 
-
 i32 adjscmp(const void *adj1ptr, const void *adj2ptr) {
     adjs adj1 = *(adjs *)adj1ptr;
     adjs adj2 = *(adjs *)adj2ptr;
     return s8cmp(&adj1.node, &adj2.node);
 }
-
 
 adjslist parse_input(s8list lines, arena *perm) {
     adjslist graph = new_adjslist(lines.len, 0, perm);
@@ -67,25 +65,35 @@ s8list adjs_get(adjslist graph, s8 key) {
     return (s8list){};
 }
 
+s8list dedupe_nodes(s8list nodes, arena *perm) {
+    if (nodes.len < 2) return nodes;
+    s8list deduped = new_s8list(nodes.len, 0, perm);
+    qsort(nodes.data, nodes.len, sizeof(s8), s8cmp);
+    append_s8(&deduped, nodes.data[0]);
+    for (size i = 1; i < nodes.len; i++) {
+        s8 cand_node = nodes.data[i];
+        s8 latest_node = deduped.data[deduped.len - 1];
+        if (!s8equals(cand_node, latest_node)) {
+            append_s8(&deduped, cand_node);
+        }
+    }
+    return deduped;
+}
 
 s8list get_nodes(adjslist str_graph, arena *perm) {
-    s8list nodes = new_s8list(str_graph.len * 2, 0, perm);
+    // probably overly paranoid but allocate space for nodes to neighbors of every other node
+    s8list nodes = new_s8list(str_graph.len * str_graph.len, 0, perm);
     for (size i = 0; i < str_graph.len; i++) {
         adjs node_edges = str_graph.data[i];
         s8 edge_node = node_edges.node;
         s8list neighbors = node_edges.neighbors;
-        if (!in_s8l(nodes, edge_node)) {
-            append_s8(&nodes, node_edges.node);
-        }
+        append_s8(&nodes, edge_node);
         for (size j = 0; j < neighbors.len; j++) {
             s8 neighbor = neighbors.data[j];
-            if (!in_s8l(nodes, neighbor)) {
-                append_s8(&nodes, neighbor);
-            }
+            append_s8(&nodes, neighbor);
         }
     }
-    qsort(nodes.data, nodes.len, sizeof(s8), s8cmp);
-    return nodes;
+    return dedupe_nodes(nodes, perm);
 }
 
 i64ll make_idx_graph(s8list nodes, adjslist str_graph, arena *perm) {
@@ -93,9 +101,10 @@ i64ll make_idx_graph(s8list nodes, adjslist str_graph, arena *perm) {
     for (size i = 0; i < nodes.len; i++) {
         s8 str_node = nodes.data[i];
         s8list str_neighbors = adjs_get(str_graph, str_node);
-        i64list i_neighbors = {.len = str_neighbors.len, .data = new (perm, i64, str_neighbors.len)};
+        i64list i_neighbors = {.len = str_neighbors.len,
+                               .data = new (perm, i64, str_neighbors.len)};
         for (size j = 0; j < str_neighbors.len; j++) {
-            size idx = idx_of_s8(nodes, str_neighbors.data[j]);
+            size idx = idx_of_s8l(nodes, str_neighbors.data[j]);
             i_neighbors.data[j] = idx;
         }
         idx_graph.data[i] = i_neighbors;
@@ -103,7 +112,8 @@ i64ll make_idx_graph(s8list nodes, adjslist str_graph, arena *perm) {
     return idx_graph;
 }
 
-i64 dfs(i64ll igraph, i64 starti, i64 targeti, i64 friend1, i64 friend2, b32 has_f1, b32 has_f2, i64list memo) {
+i64 dfs(i64ll igraph, i64 starti, i64 targeti, i64 friend1, i64 friend2, b32 has_f1,
+        b32 has_f2, i64list memo) {
     i64 offset = (has_f1 << 1) | has_f2;
     i64 memoidx = 4 * starti + offset;
 
@@ -122,7 +132,8 @@ i64 dfs(i64ll igraph, i64 starti, i64 targeti, i64 friend1, i64 friend2, b32 has
         i64 neighbor = neighbors.data[i];
         b32 hasf1 = has_f1 || (friend1 == neighbor);
         b32 hasf2 = has_f2 || (friend2 == neighbor);
-        i64 neighbor_res = dfs(igraph, neighbor, targeti, friend1, friend2, hasf1, hasf2, memo);
+        i64 neighbor_res =
+            dfs(igraph, neighbor, targeti, friend1, friend2, hasf1, hasf2, memo);
         count += neighbor_res;
     }
     memo.data[memoidx] = count;
@@ -130,7 +141,7 @@ i64 dfs(i64ll igraph, i64 starti, i64 targeti, i64 friend1, i64 friend2, b32 has
 }
 
 int main(int argc, char **argv) {
-    arena perm = arena_create(1024L * 200);
+    arena perm = arena_create(1024L * 1024 * 40);
     s8 input_text = read_input(argc, argv, &perm);
 
     s8list lines = get_lines(input_text, &perm);
@@ -140,10 +151,10 @@ int main(int argc, char **argv) {
     s8list nodes = get_nodes(graph, &perm);
     // turn that into a map or node_idx->neighbor_idxs
     i64ll igraph = make_idx_graph(nodes, graph, &perm);
-    i64 starti = idx_of_s8(nodes, s8("svr"));
-    i64 targeti = idx_of_s8(nodes, s8("out"));
-    i64 friend1i = idx_of_s8(nodes, s8("dac")); // the friends we made along the way
-    i64 friend2i = idx_of_s8(nodes, s8("fft"));
+    i64 starti = idx_of_s8l(nodes, s8("svr"));
+    i64 targeti = idx_of_s8l(nodes, s8("out"));
+    i64 friend1i = idx_of_s8l(nodes, s8("dac")); // the friends we made along the way
+    i64 friend2i = idx_of_s8l(nodes, s8("fft"));
     // make a cache node_idx->count
     i64list memo = {.len = nodes.len * 4, .data = new (&perm, i64, nodes.len * 4)};
     memset(memo.data, -1, memo.len * sizeof(i64));

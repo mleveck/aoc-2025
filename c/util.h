@@ -32,7 +32,8 @@ typedef size_t usize;
 // Strings
 #define s8(s)                                                                  \
     (s8) { (u8 *)s, lengthof(s) }
-typedef struct s8 {
+
+typedef struct {
     u8 *data;
     size len;
 } s8;
@@ -212,11 +213,30 @@ static inline b32 in_s8l(s8list sl, s8 key) {
     return 0;
 }
 
-static inline size idx_of_s8(s8list sl, s8 key) {
+static inline size idx_of_s8l(s8list sl, s8 key) {
     for (size i = 0; i < sl.len; i++) {
         s8 el = sl.data[i];
         if (s8equals(el, key))
             return i;
+    }
+    return -1;
+}
+
+static inline size idx_of_s8l_sorted(s8list sl, s8 key) {
+    i64 start = 0;
+    i64 end = sl.len - 1;
+    while (start <= end) {
+        i64 mid = start + (end - start) / 2;
+        s8 el = sl.data[mid];
+        i32 cmp = s8cmp(&key, &(el));
+        if (cmp == 0) {
+            return mid;
+        }
+        if (cmp < 0) {
+            end = mid - 1;
+        } else {
+            start = mid + 1;
+        }
     }
     return -1;
 }
