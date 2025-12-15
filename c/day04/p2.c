@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
     INPUT_FNAME = argv[1];
   arena perm = arena_create(1024 * 1024 * 40);
   s8 ftext = slurp(INPUT_FNAME, &perm);
-  s8 ftext2 = slurp(INPUT_FNAME, &perm); //cheasy way to get an actual copy
+  s8 ftext2 = dup_s8(ftext, &perm);
   if (ftext.len < 0) {
     fprintf(stderr, "Couldn't open file %s\n", INPUT_FNAME);
     exit(1);

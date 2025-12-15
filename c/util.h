@@ -180,6 +180,19 @@ static inline void append_i64l(i64ll* ll, i64list l) {
     ll->data[ll->len++] = l;
 }
 
+static inline s8 new_s8(size cap, size len, arena *a) {
+    s8 str = {0};
+    str.len = len;
+    str.data = new(a, u8, cap);
+    return str;
+}
+
+static inline s8 dup_s8(s8 src, arena *a) {
+    s8 dst = new_s8(src.len, src.len, a);
+    if (src.len > 0) memcpy(dst.data, src.data, dst.len*sizeof(u8));
+    return dst;
+}
+
 static inline s8list new_s8list(size cap, size len, arena *a){
     s8list sl;
     sl.len = len;
