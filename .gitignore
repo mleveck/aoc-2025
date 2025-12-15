@@ -1,0 +1,37 @@
+# Binaries (no extension)
+p1
+p2
+p1_3
+p2_3
+a.out
+test
+
+# Debug symbols
+*.dSYM/
+
+# Object files
+*.o
+
+# Vim swap files
+*.swp
+*.swo
+*.swn
+
+# macOS
+.DS_Store
+
+# Temporary files
+*.tmp
+.*.tmp
+
+# Puzzle inputs and test files (personal data)
+input.txt
+**/input.txt
+sample_input.txt
+**/sample_input.txt
+sample*.txt
+test.txt
+test.c
+
+# clangd cache
+.cache/
