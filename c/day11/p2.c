@@ -82,14 +82,19 @@ s8list dedupe_nodes(s8list nodes, arena *perm) {
 }
 
 s8list get_nodes(adjslist str_graph, arena *perm) {
-    // probably overly paranoid but allocate space for nodes to neighbors of every other
-    // node
-    s8list nodes = new_s8list(str_graph.len * str_graph.len, 0, perm);
+    size max_num_nodes = str_graph.len;
+    // We don't know how many nodes aren't keys. Probly just "out"
+    // But idk.  So allocate for keys + neighbors
+    for (size i = 0; i <= str_graph.len; i++) {
+        s8list neighbors = str_graph.data[i].neighbors;
+        max_num_nodes += neighbors.len;
+    }
+    s8list nodes = new_s8list(max_num_nodes, 0, perm);
     for (size i = 0; i < str_graph.len; i++) {
         adjs node_edges = str_graph.data[i];
-        s8 edge_node = node_edges.node;
+        s8 node = node_edges.node;
         s8list neighbors = node_edges.neighbors;
-        append_s8(&nodes, edge_node);
+        append_s8(&nodes, node);
         for (size j = 0; j < neighbors.len; j++) {
             s8 neighbor = neighbors.data[j];
             append_s8(&nodes, neighbor);
@@ -143,7 +148,7 @@ i64 dfs(i64ll graph, i64 start, i64 target, i64 friend1, i64 friend2, b32 has_f1
 }
 
 int main(int argc, char **argv) {
-    arena perm = arena_create(1024L * 1024 * 12);
+    arena perm = arena_create(1024L * 400);
     s8 input_text = read_input(argc, argv, &perm);
 
     s8list lines = get_lines(input_text, &perm);
@@ -155,8 +160,8 @@ int main(int argc, char **argv) {
     i64ll igraph = make_idx_graph(nodes, graph, &perm);
     i64 starti = idx_of_s8l_sorted(nodes, s8("svr"));
     i64 targeti = idx_of_s8l_sorted(nodes, s8("out"));
-    i64 friend1i =
-        idx_of_s8l_sorted(nodes, s8("dac")); // the friends we made along the way
+    // the friends we made along the way
+    i64 friend1i = idx_of_s8l_sorted(nodes, s8("dac"));
     i64 friend2i = idx_of_s8l_sorted(nodes, s8("fft"));
     // make a cache f(node_idx, seen_dac, seen_fft)->count
     i64list memo = new_i64list(nodes.len * 4, nodes.len * 4, &perm);
